@@ -1,0 +1,82 @@
+#lang racket
+
+(provide (all-defined-out)) ; export all top-level definitions for testing
+
+(require racket/trace)
+
+
+;; 1. Integer exponentiation
+(define (iexpt n e)
+  (cond
+    ((= e 0) 1)
+    ((= e 1) n)
+    (else (* n (iexpt n (- e 1))))))
+
+
+;; 2. Polynomial evaluation
+(define (poly-eval coeffs x)
+  (define (poly-eval-helper coeffs power acc)
+    (cond
+      ((null? coeffs) acc)
+      (else (poly-eval-helper (cdr coeffs) (+ power 1)
+                              (+ acc (* (car coeffs) (iexpt x power)))))))
+  (poly-eval-helper coeffs 0 0))
+
+
+;; 3. List concatenation
+(define (concatenate . lsts)
+  (define (concatenate-helper lists acc)
+    (cond
+      ((null? lists) acc)
+      ((null? (car lists))
+       (concatenate-helper (cdr lists) acc))
+      (else (concatenate-helper (cdr lists) 
+                                (append-to-list acc (car lists))))))
+  (define (append-to-list lst1 lst2)
+    (if (null? lst1)
+        lst2
+        (cons (car lst1) (append-to-list (cdr lst1) lst2))))
+  (concatenate-helper lsts '()))
+
+
+;; 4. List ordered merging (non-tail-recursive)
+(define (merge l1 l2)
+  (cond
+    ((null? l1) l2)
+    ((null? l2) l1)
+    ((< (car l1) (car l2))
+     (cons (car l1) (merge (cdr l1) l2)))
+    (else
+     (cons (car l2) (merge l1 (cdr l2))))))
+
+
+;; 5. List ordered merging (tail-recursive)
+(define (merge-tail l1 l2)
+  (void))
+
+
+;; 6. List run-length encoding
+(define (run-length-encode lst)
+  (void))
+
+
+;; 7. List run-length decoding
+(define (run-length-decode lst)
+  (void))
+                 
+
+;; 8. Labeling sexps
+(define (label-sexp sexp)
+    (match sexp
+      [(? integer?)
+       `(int ,sexp)]
+
+      [(? symbol?)
+       `(var ,sexp)]
+
+      [(list (and op (or '+ '* '/ '-)) lhs rhs)
+       `(arith (op ,op) ,lhs ,rhs)]
+
+
+      [_ (error "Can't label!")]))
+      
